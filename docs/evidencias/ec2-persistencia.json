@@ -1,0 +1,15 @@
+{
+  "verificacion": "OK",
+  "fecha": "2026-10-30T05:48:37.191965+00:00",
+  "compra": {
+    "id": 1,
+    "eventoId": 1,
+    "evento": "Concierto Cloud",
+    "cantidad": 3,
+    "precioUnitario": 12500.5,
+    "precioTotal": 37501.5,
+    "fechaCompra": "2026-10-30T05:47:30.054278Z"
+  },
+  "postgresReiniciado": true,
+  "microserviciosRecreados": true
+}

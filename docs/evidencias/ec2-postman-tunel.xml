@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="CDY2204 Eventos y Compras" tests="15" time="5.656">
+  <testsuite name="01 Salud eventos" id="1c77bfdf-b70d-4d44-885f-27b174b3fb9b" timestamp="2026-10-30T05:47:28.536Z" tests="2" failures="0" errors="0" time="0.435">
+    <testcase name="HTTP 200" time="0.435" classname="01SaludEventos"/>
+    <testcase name="UP" time="0.435" classname="01SaludEventos"/>
+  </testsuite>
+  <testsuite name="02 Salud compras" id="fd70ce6c-b27b-4cb1-869b-6c09995dbbed" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.262">
+    <testcase name="HTTP 200" time="0.262" classname="02SaludCompras"/>
+  </testsuite>
+  <testsuite name="03 Crear evento" id="6a69d51c-52e4-44a1-a995-61f155ecfb75" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.589">
+    <testcase name="HTTP 201" time="0.589" classname="03CrearEvento"/>
+  </testsuite>
+  <testsuite name="04 Listar eventos disponibles" id="a3edad8e-540a-4302-9570-569ebb0d89ed" timestamp="2026-10-30T05:47:28.536Z" tests="2" failures="0" errors="0" time="0.353">
+    <testcase name="HTTP 200" time="0.353" classname="04ListarEventosDisponibles"/>
+    <testcase name="Evento creado visible" time="0.353" classname="04ListarEventosDisponibles"/>
+  </testsuite>
+  <testsuite name="05 Consultar evento" id="18655aef-746b-4b70-baa4-e7b65c27bc2b" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.326">
+    <testcase name="HTTP 200" time="0.326" classname="05ConsultarEvento"/>
+  </testsuite>
+  <testsuite name="06 Comprar tres entradas" id="4839960a-c18c-4156-afc5-27627f4b0098" timestamp="2026-10-30T05:47:28.536Z" tests="2" failures="0" errors="0" time="0.619">
+    <testcase name="HTTP 201" time="0.619" classname="06ComprarTresEntradas"/>
+    <testcase name="Resumen y total exactos" time="0.619" classname="06ComprarTresEntradas"/>
+  </testsuite>
+  <testsuite name="07 Consultar compra persistida" id="60b886c7-7a38-4928-b107-319f827cdeb1" timestamp="2026-10-30T05:47:28.536Z" tests="2" failures="0" errors="0" time="0.362">
+    <testcase name="HTTP 200" time="0.362" classname="07ConsultarCompraPersistida"/>
+    <testcase name="Total persistido" time="0.362" classname="07ConsultarCompraPersistida"/>
+  </testsuite>
+  <testsuite name="08 Actualizar evento" id="63c55326-07fe-4e94-9b09-f80229a2c114" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.342">
+    <testcase name="HTTP 200" time="0.342" classname="08ActualizarEvento"/>
+  </testsuite>
+  <testsuite name="09 Compra conserva precio original" id="f84f2b38-c02e-436b-9206-e283c1597b70" timestamp="2026-10-30T05:47:28.536Z" tests="2" failures="0" errors="0" time="0.301">
+    <testcase name="HTTP 200" time="0.301" classname="09CompraConservaPrecioOriginal"/>
+    <testcase name="Historial intacto" time="0.301" classname="09CompraConservaPrecioOriginal"/>
+  </testsuite>
+  <testsuite name="10 Rechazar cantidad cero" id="f3530eb5-68e7-4b0c-8d53-3d3a8dff3455" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.352">
+    <testcase name="HTTP 400" time="0.352" classname="10RechazarCantidadCero"/>
+  </testsuite>
+  <testsuite name="11 Rechazar evento inexistente" id="049c9e61-c7f9-4498-af3a-fabe5777b833" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.534">
+    <testcase name="HTTP 404" time="0.534" classname="11RechazarEventoInexistente"/>
+  </testsuite>
+  <testsuite name="12 Rechazar evento inválido" id="eced54ba-9819-40cf-b6fc-c03081527b08" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.391">
+    <testcase name="HTTP 400" time="0.391" classname="12RechazarEventoInvalido"/>
+  </testsuite>
+  <testsuite name="13 Eliminar evento" id="dfd9cd30-220a-4883-bb47-65e27cb62191" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.342">
+    <testcase name="HTTP 204" time="0.342" classname="13EliminarEvento"/>
+  </testsuite>
+  <testsuite name="14 Evento eliminado no comprable" id="a5b03189-0965-4766-a9af-2ae75e49ed00" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.146">
+    <testcase name="HTTP 404" time="0.146" classname="14EventoEliminadoNoComprable"/>
+  </testsuite>
+  <testsuite name="15 Compra se conserva tras eliminación" id="db44895a-f9a2-4a5a-90d8-ece060dcd789" timestamp="2026-10-30T05:47:28.536Z" tests="1" failures="0" errors="0" time="0.302">
+    <testcase name="HTTP 200" time="0.302" classname="15CompraSeConservaTrasEliminacion"/>
+  </testsuite>
+</testsuites>

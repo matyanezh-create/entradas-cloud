@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: entradas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Falta POSTGRES_PASSWORD}
+      EVENTOS_DB_PASSWORD: ${EVENTOS_DB_PASSWORD:?Falta EVENTOS_DB_PASSWORD}
+      COMPRAS_DB_PASSWORD: ${COMPRAS_DB_PASSWORD:?Falta COMPRAS_DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/01-schemas.sh:/docker-entrypoint-initdb.d/01-schemas.sh:ro
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=30"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d entradas"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 256m
+  eventos:
+    image: ${EVENTOS_IMAGE:?Falta EVENTOS_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports: ["8081:8081"]
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://postgres:5432/entradas
+      DB_USERNAME: eventos_app
+      DB_PASSWORD: ${EVENTOS_DB_PASSWORD}
+      DB_SCHEMA: eventos
+      APP_VERSION: ${APP_VERSION:-unknown}
+    mem_limit: 450m
+  compras:
+    image: ${COMPRAS_IMAGE:?Falta COMPRAS_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports: ["8082:8082"]
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://postgres:5432/entradas
+      DB_USERNAME: compras_app
+      DB_PASSWORD: ${COMPRAS_DB_PASSWORD}
+      DB_SCHEMA: compras
+      EVENTOS_BASE_URL: http://eventos:8081
+      APP_VERSION: ${APP_VERSION:-unknown}
+    mem_limit: 450m
+volumes:
+  postgres-data:
+    name: entradas-cloud-postgres-data

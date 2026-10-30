@@ -1,0 +1,89 @@
+{
+  "fecha": "2026-10-24",
+  "compilacion": "BUILD SUCCESS",
+  "pruebas": [
+    {
+      "suite": "cl.duoc.compras.CompraApiTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cl.duoc.compras.EventoClientTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cl.duoc.eventos.EventoApiTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "integracionLocal": {
+    "estado": "OK",
+    "eventoId": 1,
+    "compraId": 1,
+    "precioUnitario": 12500.5,
+    "precioTotal": 37501.5,
+    "persistenciaTrasReinicio": true,
+    "historialConservado": true,
+    "fecha": "2026-10-24T00:14:43.2627045-03:00"
+  },
+  "oracleCloud": "NO_REQUERIDO_SEGUN_ACLARACION_DOCENTE",
+  "dockerImages": "CONSTRUIDAS_Y_EJECUTADAS_EN_EC2",
+  "githubActionsEC2": "PENDIENTE",
+  "oracleLocal": {
+    "eventos": {
+      "id": 1,
+      "precioActual": 15000,
+      "activo": 0
+    },
+    "compras": {
+      "id": 1,
+      "eventoId": 1,
+      "cantidad": 3,
+      "precioUnitario": 12500.5,
+      "precioTotal": 37501.5
+    },
+    "verificacion": "OK",
+    "base": "Oracle XE XEPDB1",
+    "fecha": "2026-10-26T21:24:50.002555600-03:00"
+  },
+  "coleccionPostmanOracleLocal": {
+    "ejecutor": "Newman 6.2.1",
+    "solicitudes": 15,
+    "comprobaciones": 20,
+    "fallos": 0,
+    "informe": "docs/evidencias/postman-oracle-local.json"
+  },
+  "fechaCompilacionActual": "2026-10-30",
+  "dockerHub": "PENDIENTE",
+  "ec2Preparacion": {
+    "verificacion": "OK",
+    "fecha": "2026-10-30T05:48:37.191965+00:00",
+    "compra": {
+      "id": 1,
+      "eventoId": 1,
+      "evento": "Concierto Cloud",
+      "cantidad": 3,
+      "precioUnitario": 12500.5,
+      "precioTotal": 37501.5,
+      "fechaCompra": "2026-10-30T05:47:30.054278Z"
+    },
+    "postgresReiniciado": true,
+    "microserviciosRecreados": true
+  },
+  "postmanEC2": {
+    "ejecutor": "Newman",
+    "transporte": "TUNEL_SSH",
+    "solicitudes": 15,
+    "comprobaciones": 20,
+    "fallos": 0,
+    "accesoHTTPDirecto": "PENDIENTE"
+  }
+}

@@ -1,0 +1,29 @@
+services:
+  eventos:
+    image: ${EVENTOS_IMAGE:?Define EVENTOS_IMAGE}
+    restart: unless-stopped
+    ports: ["8081:8081"]
+    environment:
+      SPRING_PROFILES_ACTIVE: oracle
+      DB_URL: ${DB_URL:?Define DB_URL}
+      DB_USERNAME: ${EVENTOS_DB_USERNAME:?Define EVENTOS_DB_USERNAME}
+      DB_PASSWORD: ${EVENTOS_DB_PASSWORD:?Define EVENTOS_DB_PASSWORD}
+      APP_VERSION: ${APP_VERSION:-unknown}
+      JAVA_TOOL_OPTIONS: -Doracle.net.tns_admin=/app/wallet
+    volumes: ["./wallet:/app/wallet:ro"]
+    mem_limit: 450m
+  compras:
+    image: ${COMPRAS_IMAGE:?Define COMPRAS_IMAGE}
+    restart: unless-stopped
+    ports: ["8082:8082"]
+    environment:
+      SPRING_PROFILES_ACTIVE: oracle
+      DB_URL: ${DB_URL:?Define DB_URL}
+      DB_USERNAME: ${COMPRAS_DB_USERNAME:?Define COMPRAS_DB_USERNAME}
+      DB_PASSWORD: ${COMPRAS_DB_PASSWORD:?Define COMPRAS_DB_PASSWORD}
+      EVENTOS_BASE_URL: http://eventos:8081
+      APP_VERSION: ${APP_VERSION:-unknown}
+      JAVA_TOOL_OPTIONS: -Doracle.net.tns_admin=/app/wallet
+    volumes: ["./wallet:/app/wallet:ro"]
+    mem_limit: 450m
+

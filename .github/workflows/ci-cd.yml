@@ -1,0 +1,107 @@
+name: Pruebas y despliegue EC2
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: entradas-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Validar script de despliegue y Compose local
+        run: |
+          bash -n deploy/deploy.sh
+          bash -n deploy/postgres/01-schemas.sh
+          docker compose -f compose.local.yml config --quiet
+      - name: Compilar y ejecutar pruebas
+        run: mvn -B -ntp verify
+      - name: Conservar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pruebas
+          path: '**/target/surefire-reports/*'
+  images:
+    if: github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        service: [eventos, compras]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: SERVICE=${{ matrix.service }}-service
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/entradas-${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+  deploy:
+    needs: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment: cloud
+    steps:
+      - uses: actions/checkout@v6
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: Autorizar runner temporalmente y desplegar por SSH
+        shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+          EC2_SECURITY_GROUP_ID: ${{ secrets.EC2_SECURITY_GROUP_ID }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          REVISION: ${{ github.sha }}
+          DATABASE_ENGINE: ${{ vars.DATABASE_ENGINE || 'postgres' }}
+        run: |
+          set -Eeuo pipefail
+          [[ "$EC2_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]
+          [[ "$EC2_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$DOCKERHUB_USERNAME" =~ ^[a-z0-9][a-z0-9_-]*$ ]]
+          [[ "$EC2_SECURITY_GROUP_ID" =~ ^sg-[a-f0-9]+$ ]]
+          [[ "$DATABASE_ENGINE" =~ ^(postgres|oracle)$ ]]
+          RUNNER_IP="$(curl -fsS --max-time 15 https://checkip.amazonaws.com)"
+          [[ "$RUNNER_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          cleanup() {
+            aws ec2 revoke-security-group-ingress --group-id "$EC2_SECURITY_GROUP_ID" --protocol tcp --port 22 --cidr "$RUNNER_IP/32" >/dev/null || true
+            rm -f "$RUNNER_TEMP/deploy_key"
+          }
+          trap cleanup EXIT
+          aws ec2 authorize-security-group-ingress --group-id "$EC2_SECURITY_GROUP_ID" --protocol tcp --port 22 --cidr "$RUNNER_IP/32"
+          umask 077
+          printf '%s\n' "$EC2_SSH_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$EC2_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          SSH_OPTS=(-i "$RUNNER_TEMP/deploy_key" -o "UserKnownHostsFile=$RUNNER_TEMP/known_hosts" -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+          ssh "${SSH_OPTS[@]}" "$EC2_USER@$EC2_HOST" 'mkdir -p ~/entradas-cloud/deploy/postgres'
+          scp "${SSH_OPTS[@]}" deploy/compose.yml deploy/compose.postgres.yml deploy/deploy.sh "$EC2_USER@$EC2_HOST:entradas-cloud/deploy/"
+          scp "${SSH_OPTS[@]}" deploy/postgres/01-schemas.sh "$EC2_USER@$EC2_HOST:entradas-cloud/deploy/postgres/"
+          ssh "${SSH_OPTS[@]}" "$EC2_USER@$EC2_HOST" "bash ~/entradas-cloud/deploy/deploy.sh '$DOCKERHUB_USERNAME' '$REVISION' '$DATABASE_ENGINE'"
+
+

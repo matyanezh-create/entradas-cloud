@@ -1,0 +1,24 @@
+services:
+  eventos:
+    build:
+      context: .
+      args:
+        SERVICE: eventos-service
+    ports: ["8081:8081"]
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    volumes: ["eventos-data:/app/data"]
+  compras:
+    build:
+      context: .
+      args:
+        SERVICE: compras-service
+    ports: ["8082:8082"]
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      EVENTOS_BASE_URL: http://eventos:8081
+    volumes: ["compras-data:/app/data"]
+volumes:
+  eventos-data:
+  compras-data:
+

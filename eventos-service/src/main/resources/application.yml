@@ -1,0 +1,34 @@
+server:
+  port: 8081
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  application:
+    name: eventos-service
+  profiles:
+    default: local
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      accept-float-as-int: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: true
+info:
+  app:
+    version: ${APP_VERSION:local}
+
+

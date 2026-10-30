@@ -1,0 +1,11 @@
+.git
+**/target
+**/data
+.env
+**/.env
+**/*.pem
+**/*.p12
+**/*.sso
+**/wallet
+work
+

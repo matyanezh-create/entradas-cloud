@@ -1,0 +1,429 @@
+{
+  "info": {
+    "name": "CDY2204 Eventos y Compras",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden con Collection Runner. Crea un evento y una compra; da de baja el evento al finalizar. La compra queda como evidencia."
+  },
+  "variable": [
+    {
+      "key": "eventosUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "comprasUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "eventoId",
+      "value": ""
+    },
+    {
+      "key": "compraId",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.collectionVariables.set(\"fechaFutura\",new Date(Date.now()+30*86400000).toISOString());"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Salud eventos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{eventosUrl}}/actuator/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"UP\",()=>pm.expect(pm.response.json().status).to.eql(\"UP\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Salud compras",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/actuator/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Crear evento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{eventosUrl}}/api/eventos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Concierto Cloud\",\n  \"fecha\": \"{{fechaFutura}}\",\n  \"precio\": 12500.5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"eventoId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Listar eventos disponibles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{eventosUrl}}/api/eventos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Evento creado visible\",()=>pm.expect(pm.response.json().some(e=>e.id==pm.collectionVariables.get(\"eventoId\"))).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Consultar evento",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{eventosUrl}}/api/eventos/{{eventoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Comprar tres entradas",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{comprasUrl}}/api/compras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventoId\": \"{{eventoId}}\",\n  \"cantidad\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const c=pm.response.json();",
+              "pm.collectionVariables.set(\"compraId\",c.id);",
+              "pm.test(\"Resumen y total exactos\",()=>{pm.expect(c.evento).to.eql(\"Concierto Cloud\");pm.expect(c.cantidad).to.eql(3);pm.expect(c.precioUnitario).to.eql(12500.50);pm.expect(c.precioTotal).to.eql(37501.50);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Consultar compra persistida",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Total persistido\",()=>pm.expect(pm.response.json().precioTotal).to.eql(37501.50));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Actualizar evento",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{eventosUrl}}/api/eventos/{{eventoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Concierto actualizado\",\n  \"fecha\": \"{{fechaFutura}}\",\n  \"precio\": 15000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Compra conserva precio original",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Historial intacto\",()=>{const c=pm.response.json();pm.expect(c.evento).to.eql(\"Concierto Cloud\");pm.expect(c.precioUnitario).to.eql(12500.50);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Rechazar cantidad cero",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{comprasUrl}}/api/compras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventoId\": \"{{eventoId}}\",\n  \"cantidad\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Rechazar evento inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{comprasUrl}}/api/compras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventoId\": 999999999,\n  \"cantidad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Rechazar evento inválido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{eventosUrl}}/api/eventos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"\",\n  \"fecha\": \"{{fechaFutura}}\",\n  \"precio\": -1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Eliminar evento",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{eventosUrl}}/api/eventos/{{eventoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Evento eliminado no comprable",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{comprasUrl}}/api/compras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventoId\": \"{{eventoId}}\",\n  \"cantidad\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Compra se conserva tras eliminación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

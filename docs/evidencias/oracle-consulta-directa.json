@@ -1,0 +1,7 @@
+{
+  "eventos": {"id": 1, "precioActual": 15000, "activo": 0},
+  "compras": {"id": 1, "eventoId": 1, "cantidad": 3, "precioUnitario": 12500.5, "precioTotal": 37501.5},
+  "verificacion": "OK",
+  "base": "Oracle XE XEPDB1",
+  "fecha": "2026-10-26T21:24:50.002555600-03:00"
+}

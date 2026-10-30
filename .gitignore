@@ -1,0 +1,15 @@
+**/target/
+**/data/
+.idea/
+.vscode/
+*.iml
+.env
+*.pem
+*.p12
+*.sso
+wallet/
+wallet-*/
+*.log
+deploy/.previous-images
+deploy/.current-images
+

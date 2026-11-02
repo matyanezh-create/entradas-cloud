@@ -9,10 +9,15 @@ Se comprobo por SQL y por la API que la compra 1 se conserva despues de reinicia
 ## Pendientes para cumplir la entrega
 
 - Habilitar 8081 y 8082 desde la IP de evaluacion y probar directamente la IP publica.
-- Repositorio de entrega: https://github.com/matyanezh-create/entradas-cloud (carga del proyecto en curso).
+- Repositorio de entrega: https://github.com/matyanezh-create/entradas-cloud (proyecto subido a main).
 - Configurar Docker Hub y los secretos del workflow.
 - Obtener un despliegue real y exitoso mediante GitHub Actions.
 - Grabar en Teams el proceso de despliegue, logs y pruebas Postman.
 - Entregar enlaces definitivos y documentacion.
 
 La version preparacion-20261030 fue instalada por SSH. No se presenta como un despliegue ejecutado por GitHub Actions.
+
+## GitHub Actions verificado
+
+La ejecucion 41011503369 completo correctamente el trabajo test con 21 pruebas sin fallos. images y deploy se omitieron mientras faltan secretos y DEPLOY_ENABLED. Ver evidencias/GITHUB_ACTIONS_CI.md.
+

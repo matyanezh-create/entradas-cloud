@@ -13,14 +13,21 @@ case "$engine" in
   *) echo 'Motor no admitido'; exit 2 ;;
 esac
 D=(docker)
-if ! docker info >/dev/null 2>&1; then D=(sudo -n docker); fi
+if ! docker info >/dev/null 2>&1; then D=(sudo -n env); fi
 exec 9>.deploy.lock
 flock -n 9 || { echo 'Ya existe un despliegue en curso'; exit 2; }
 export EVENTOS_IMAGE="$namespace/entradas-eventos:$revision"
 export COMPRAS_IMAGE="$namespace/entradas-compras:$revision"
 export APP_VERSION="$revision"
-"${D[@]}" compose -p entradas-cloud -f "$compose_file" config --quiet
-"${D[@]}" compose -p entradas-cloud -f "$compose_file" pull
+compose() {
+  if [[ "${D[0]}" == sudo ]]; then
+    "${D[@]}" EVENTOS_IMAGE="$EVENTOS_IMAGE" COMPRAS_IMAGE="$COMPRAS_IMAGE" APP_VERSION="$APP_VERSION" docker compose "$@"
+  else
+    docker compose "$@"
+  fi
+}
+compose -p entradas-cloud -f "$compose_file" config --quiet
+compose -p entradas-cloud -f "$compose_file" pull
 if test -f .current-images; then cp .current-images .previous-images; fi
 healthy() {
   local port
@@ -35,13 +42,13 @@ rollback() {
     set -a
     source .previous-images
     set +a
-    "${D[@]}" compose -p entradas-cloud -f "$compose_file" up -d --remove-orphans
+    compose -p entradas-cloud -f "$compose_file" up -d --remove-orphans
     echo 'Restauracion solicitada; revisar salud'
   else
     echo 'Primer despliegue: no hay version anterior'
   fi
 }
-if "${D[@]}" compose -p entradas-cloud -f "$compose_file" up -d --remove-orphans; then
+if compose -p entradas-cloud -f "$compose_file" up -d --remove-orphans; then
   for i in $(seq 1 36); do
     if healthy; then
       printf 'EVENTOS_IMAGE=%s\nCOMPRAS_IMAGE=%s\nAPP_VERSION=%s\n' "$EVENTOS_IMAGE" "$COMPRAS_IMAGE" "$APP_VERSION" > .current-images
@@ -51,6 +58,6 @@ if "${D[@]}" compose -p entradas-cloud -f "$compose_file" up -d --remove-orphans
     sleep 5
   done
 fi
-"${D[@]}" compose -p entradas-cloud -f "$compose_file" logs --tail 60 eventos compras
+compose -p entradas-cloud -f "$compose_file" logs --tail 60 eventos compras
 rollback
 exit 1

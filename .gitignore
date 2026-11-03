@@ -13,3 +13,7 @@ wallet-*/
 deploy/.previous-images
 deploy/.current-images
 
+
+**/resumenes-locales/
+**/dist/
+**/evidencias/*.txt

@@ -1,0 +1,8 @@
+RESUMEN DE COMPRA
+Numero: 1
+Fecha: 2026-11-02T21:49:44.971956-03:00
+Evento ID: 1
+Evento: Festival Semana 2
+Cantidad: 3
+Precio unitario CLP: 12500.50
+TOTAL CLP: 37501.50

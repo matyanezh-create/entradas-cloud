@@ -1,5 +1,11 @@
 # Sistema de eventos y venta de entradas
 
+## Semana 2 integrada con S3
+
+La extensión de semana 2 usa las compras guardadas por este mismo proyecto. El número de resumen es el ID de compra y la clave S3 es `{id}/resumen-{id}.txt`. Incluye generación de TXT físico, carga, consulta, descarga, reemplazo y eliminación. Conserva los dos microservicios y sus rutas anteriores.
+
+Empieza por [la guía de semana 2](docs/SEMANA2_S3.md), [las evidencias](docs/VALIDACION_S2.md) y [el guion para Teams](docs/VIDEO_SEMANA2.md). La colección nueva es `postman/Semana2_S3.postman_collection.json`. El proyecto conserva también la documentación de semana 1; sus estados históricos de despliegue no describen automáticamente esta nueva versión.
+
 Proyecto para CDY2204, experiencia 1, semana 1, forma B. Implementa dos microservicios Spring Boot con Java 17: un catálogo de eventos y un servicio de compras que calcula y conserva el resumen de cada venta. Incluye perfiles para desarrollo local y Oracle Cloud, Docker, CI/CD, pruebas y una colección Postman.
 
 ## Despliegue EC2 actual

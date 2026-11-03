@@ -1,0 +1,244 @@
+{
+  "stats": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 24,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 16,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 0,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "failures": [],
+  "requests": [
+    {
+      "name": "01 Crear evento",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar compra",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "Total desde catalogo",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "03 Generar archivo fisico",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "Total historico",
+          "passed": true
+        },
+        {
+          "name": "Adjunto",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "04 Subir a S3",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "HTTP 201",
+          "passed": true
+        },
+        {
+          "name": "Carpeta por numero",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "05 Carga duplicada",
+      "status": 409,
+      "assertions": [
+        {
+          "name": "HTTP 409",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "06 Consultar metadatos",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Bytes positivos",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "07 Descargar original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Contenido identico al generado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "08 Reemplazar archivo",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "09 Descargar correccion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "HTTP 200",
+          "passed": true
+        },
+        {
+          "name": "Correccion visible",
+          "passed": true
+        },
+        {
+          "name": "Total conservado",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "10 Eliminar archivo",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "HTTP 204",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "11 Consultar eliminado",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "12 Descargar eliminado",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "13 Eliminar inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "14 Actualizar inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "15 Rechazar numero incorrecto",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "HTTP 400",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "16 Compra inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "HTTP 404",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

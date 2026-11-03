@@ -1,0 +1,45 @@
+{
+  "bucket": "cdy2204-resumenes-485691189324-s2",
+  "currentObjects": 0,
+  "versions": [
+    {
+      "key": "1/resumen-1.txt",
+      "versionId": "6QpX6uBJiz.8NkWfdbYGIodt0wrMhdl9",
+      "latest": false,
+      "bytes": 216
+    },
+    {
+      "key": "1/resumen-1.txt",
+      "versionId": "AztHpitbaSl0O7enelF7tM_xxjYTnQgB",
+      "latest": false,
+      "bytes": 169
+    },
+    {
+      "key": "1/resumen-1.txt",
+      "versionId": "rOEPa.dwrC3.hMPgwDEpd8zCFnIy34so",
+      "latest": false,
+      "bytes": 214
+    },
+    {
+      "key": "1/resumen-1.txt",
+      "versionId": "p0VB4PtSaPrVpHk3ojj83V4WGWxDbJ5I",
+      "latest": false,
+      "bytes": 167
+    }
+  ],
+  "deleteMarkers": [
+    {
+      "key": "1/resumen-1.txt",
+      "latest": true,
+      "versionId": "OXZna15OE10spfBvrQWZPlOsB73oqkSV"
+    },
+    {
+      "key": "1/resumen-1.txt",
+      "latest": false,
+      "versionId": "7B3odr8iv.1JQsoJbCeTbaEdO3yNz6Q3"
+    }
+  ],
+  "physicalFiles": [
+    "resumen-1.txt"
+  ]
+}

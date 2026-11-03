@@ -1,0 +1,410 @@
+{
+  "info": {
+    "name": "CDY2204 Semana 2 integrada con Semana 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Crear evento y compra, generar TXT fisico, subir, consultar, descargar, reemplazar y borrar en S3. Seleccionar archivos multipart tras el paso 03 si se usa Postman Desktop."
+  },
+  "variable": [
+    {
+      "key": "eventosUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "comprasUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "eventoId",
+      "value": ""
+    },
+    {
+      "key": "compraId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Crear evento",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{eventosUrl}}/api/eventos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Festival Semana 2\", \"fecha\": \"2099-11-15T20:00:00-03:00\", \"precio\": 12500.5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('eventoId',pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar compra",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"eventoId\":{{eventoId}},\"cantidad\":3}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('compraId',pm.response.json().id);",
+              "pm.test('Total desde catalogo',()=>pm.expect(pm.response.json().precioTotal).to.eql(37501.50));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Generar archivo fisico",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/generar"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.test('Total historico',()=>pm.expect(pm.response.text()).to.include('TOTAL CLP: 37501.50'));",
+              "pm.test('Adjunto',()=>pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));",
+              "pm.collectionVariables.set('resumenGenerado',pm.response.text());"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Subir a S3",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "resumen-generado.txt"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.test('Carpeta por numero',()=>pm.expect(pm.response.json().key).to.eql(pm.collectionVariables.get('compraId')+'/resumen-'+pm.collectionVariables.get('compraId')+'.txt'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Carga duplicada",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "resumen-generado.txt"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409',()=>pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Consultar metadatos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Bytes positivos',()=>pm.expect(pm.response.json().bytes).to.be.above(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Descargar original",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Contenido identico al generado',()=>pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('resumenGenerado')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Reemplazar archivo",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "resumen-corregido.txt"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Descargar correccion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Correccion visible',()=>pm.expect(pm.response.text()).to.include('Observacion: referencia de contacto corregida'));",
+              "pm.test('Total conservado',()=>pm.expect(pm.response.text()).to.include('TOTAL CLP: 37501.50'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Eliminar archivo",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204',()=>pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Consultar eliminado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Descargar eliminado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Eliminar inexistente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Actualizar inexistente",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "resumen-corregido.txt"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Rechazar numero incorrecto",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/{{compraId}}/resumen/archivo",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "resumen-numero-incorrecto.txt"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 Compra inexistente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{comprasUrl}}/api/compras/999999999/resumen/generar"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

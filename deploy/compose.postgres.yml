@@ -47,6 +47,12 @@ services:
       DB_PASSWORD: ${COMPRAS_DB_PASSWORD}
       DB_SCHEMA: compras
       EVENTOS_BASE_URL: http://eventos:8081
+      S3_BUCKET: ${S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      RESUMENES_DIR: /app/data/resumenes-locales
       APP_VERSION: ${APP_VERSION:-unknown}
     mem_limit: 450m
 volumes:

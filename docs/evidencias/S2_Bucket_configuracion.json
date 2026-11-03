@@ -1,0 +1,12 @@
+{
+  "bucket": "cdy2204-resumenes-485691189324-s2",
+  "region": "us-east-1",
+  "versioning": "Enabled",
+  "publicAccessBlock": {
+    "BlockPublicAcls": true,
+    "IgnorePublicAcls": true,
+    "BlockPublicPolicy": true,
+    "RestrictPublicBuckets": true
+  },
+  "encryption": "AES256"
+}
